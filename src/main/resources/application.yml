@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: Commerx
+  datasource:
+    url: jdbc:postgresql://localhost:5432/commerx
+    username: commerx
+    password: commerx
+    driverClassName: org.postgresql.Driver
+  hikari:
+    connection-timeout: 50000 # maximum number of milliseconds that a client will wait for a connection
+    minimum-idle: 10 # minimum number of idle connections maintained by HikariCP in a connection pool
+    maximum-pool-size: 50
+    idle-timeout: 20000
+    max-lifetime: 1000 # maximum lifetime in milliseconds of a connection in the pool after it is closed.
+    auto-commit: false
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+      connection:
+        provider_disables_autocommit: true
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  banner:
+    location: classpath:banner/banner.txt
