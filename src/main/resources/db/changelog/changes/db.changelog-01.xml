@@ -4,4 +4,550 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Table users -->
+    <changeSet author="abt" id="create-table-users">
+        <comment>Create users table</comment>
+
+        <createTable tableName="users" remarks="Users registered in the app">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="first_name" type="VARCHAR(255)" remarks="User's first name">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_name" type="VARCHAR(255)" remarks="User's last name">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="birth_date" type="DATE" remarks="User's birthdate">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="sex" type="VARCHAR(5)" remarks="User's sex">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="country" type="VARCHAR(50)" remarks="User's country">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="city" type="VARCHAR(50)" remarks="User's city">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="postal_code" type="VARCHAR(5)" remarks="User's postal code">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="street_name" type="VARCHAR(255)" remarks="User's street name">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="phone_number" type="VARCHAR(10)" remarks="User's phone number">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="email" type="VARCHAR(50)" remarks="User's email">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="password" type="TEXT" remarks="User's password">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="users"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Table category -->
+    <changeSet id="create-table-category" author="abt">
+        <comment>Create category table</comment>
+
+        <createTable tableName="category" remarks="Category for a product">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="title" type="VARCHAR(100)" remarks="Category's title">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="description" type="VARCHAR(255)" remarks="Category's description"/>
+
+            <column name="category_type" type="VARCHAR(100)" remarks="Category's type">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP"
+                    remarks="Date and time of category creation">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_updated_at" type="DATETIME"
+                    defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+                    remarks="Date and time of category update"/>
+        </createTable>
+
+        <addUniqueConstraint columnNames="title"
+                             constraintName="uk_category_title"
+                             tableName="category"/>
+        <rollback>
+            <dropTable tableName="category"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Table product -->
+    <changeSet author="abt" id="create-table-product">
+        <comment>Create product table</comment>
+
+        <createTable tableName="product" remarks="Products available in the app">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="name" type="VARCHAR(100)" remarks="Product's name">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="price" type="decimal(10,2)" remarks="Product's price">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="category_id" type="BIGINT" remarks="Foreign key from category">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint columnNames="name"
+                             constraintName="uk_product_name"
+                             tableName="product"/>
+
+        <addForeignKeyConstraint constraintName="fk_product_category"
+                                 baseColumnNames="category_id"
+                                 baseTableName="product"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="category"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="product"
+                                      constraintName="fk_product_category"/>
+
+            <dropTable tableName="product"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Table inventory -->
+    <changeSet id="create-table-inventory" author="abt">
+        <comment>Create inventory table</comment>
+
+        <createTable tableName="inventory" remarks="Inventory for each product">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="quantity" type="integer" remarks="Quantity of available product">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="product_id" type="BIGINT" remarks="Foreign key from product">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_inventory_product"
+                                 baseColumnNames="product_id"
+                                 baseTableName="inventory"
+                                 onDelete="CASCADE"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="product"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="inventory"
+                                      constraintName="fk_inventory_product"/>
+
+            <dropTable tableName="inventory"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Table review -->
+    <changeSet author="abt" id="create-table-review">
+        <comment>Create review table</comment>
+
+        <createTable tableName="review" remarks="Review for each product">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="title" type="VARCHAR(100)" remarks="Review's title">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="description" type="VARCHAR(255)" remarks="Review's description"/>
+
+            <column name="rating" type="smallint" remarks="Rating product review">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="product_id" type="BIGINT" remarks="Foreign key from product">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="user_id" type="BIGINT" remarks="Foreign key from user">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_review_product"
+                                 baseColumnNames="product_id"
+                                 baseTableName="review"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="product"/>
+
+        <addForeignKeyConstraint constraintName="fk_review_users"
+                                 baseColumnNames="user_id"
+                                 baseTableName="review"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="review"
+                                      constraintName="fk_review_product"/>
+
+            <dropForeignKeyConstraint baseTableName="review"
+                                      constraintName="fk_review_users"/>
+
+            <dropTable tableName="review"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Table cart -->
+    <changeSet author="abt" id="create-table-cart">
+        <comment>Create cart table</comment>
+
+        <createTable tableName="cart" remarks="Cart containing products">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="last_updated_at" type="DATETIME"
+                    defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+                    remarks="Date and time of cart update"/>
+
+            <column name="user_id" type="BIGINT" remarks="Foreign key from user">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_cart_users"
+                                 baseColumnNames="user_id"
+                                 baseTableName="cart"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="cart"
+                                      constraintName="fk_cart_users"/>
+
+            <dropTable tableName="cart"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Table cart_item -->
+    <changeSet author="abt" id="create-table-cart_item">
+        <comment>Create cart_item table</comment>
+
+        <createTable tableName="cart_item" remarks="Cart item in cart related to a product">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="quantity" type="integer" remarks="Quantity of a product">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="price_at_addition" type="decimal(10,2)"
+                    remarks="Price based on the quantity of a product selected">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="cart_id" type="BIGINT" remarks="Foreign key from cart">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="product_id" type="BIGINT" remarks="Foreign key from product">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_cart_item_cart"
+                                 baseColumnNames="cart_id"
+                                 baseTableName="cart_item"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="cart"/>
+
+        <addForeignKeyConstraint constraintName="fk_cart_item_product"
+                                 baseColumnNames="product_id"
+                                 baseTableName="cart_item"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="product"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="cart_item"
+                                      constraintName="fk_cart_item_cart"/>
+
+            <dropForeignKeyConstraint baseTableName="cart_item"
+                                      constraintName="fk_cart_item_product"/>
+
+            <dropTable tableName="cart_item"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Table order -->
+    <changeSet author="abt" id="create-table-order">
+        <comment>Create order table</comment>
+
+        <createTable tableName="order" remarks="Order of an user">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="status" type="VARCHAR(20)" remarks="Order's status">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="total_amount" type="decimal(10,2)" remarks="Total amount of an order">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP"
+                    remarks="Date and time of order creation">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_updated_at" type="DATETIME"
+                    defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+                    remarks="Date and time of order update"/>
+
+            <column name="user_id" type="BIGINT" remarks="Foreign key from user">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_order_users"
+                                 baseColumnNames="user_id"
+                                 baseTableName="order"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="order"
+                                      constraintName="fk_order_users"/>
+            <dropTable tableName="order"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Table order_line -->
+    <changeSet author="abt" id="create-table-order_line">
+        <comment>Create order_line table</comment>
+
+        <createTable tableName="order_line" remarks="Order line in order related to a product">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="quantity" type="integer" remarks="Quantity of a product">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="price" type="decimal(10,2)" remarks="Price based on the quantity of a product selected">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="order_id" type="BIGINT" remarks="Foreign key from order">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="product_id" type="BIGINT" remarks="Foreign key from product">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_order_line_order"
+                                 baseColumnNames="order_id"
+                                 baseTableName="order_line"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="order"/>
+
+        <addForeignKeyConstraint constraintName="fk_order_line_product"
+                                 baseColumnNames="product_id"
+                                 baseTableName="order_line"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="product"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="order_line"
+                                      constraintName="fk_order_line_order"/>
+
+            <dropForeignKeyConstraint baseTableName="order_line"
+                                      constraintName="fk_order_line_product"/>
+
+            <dropTable tableName="order_line"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Table payment -->
+    <changeSet author="abt" id="create-table-payment">
+        <comment>Create payment table</comment>
+
+        <createTable tableName="payment" remarks="Payment of an order">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="status" type="VARCHAR(20)" remarks="Payment's status">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="method" type="VARCHAR(20)" remarks="Payment's method">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="transaction_id" type="VARCHAR(20)" remarks="Payment's transaction id">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="validated_at" type="DATETIME"
+                    defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+                    remarks="Date and time of payment validation"/>
+
+            <column name="order_id" type="BIGINT" remarks="Foreign key from order">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_payment_order"
+                                 baseColumnNames="order_id"
+                                 baseTableName="payment"
+                                 onDelete="NO ACTION"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="order"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="payment"
+                                      constraintName="fk_payment_order"/>
+
+            <dropTable tableName="payment"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Table address_billing -->
+    <changeSet author="abt" id="create-table-address_billing">
+        <comment>Create address_billing table</comment>
+
+        <createTable tableName="address_billing" remarks="Address billing of the order">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="country" type="VARCHAR(50)" remarks="Billing's country">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="city" type="VARCHAR(50)" remarks="Billing's City">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="postal_code" type="VARCHAR(5)" remarks="Billing's postal code">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="street_name" type="VARCHAR(255)" remarks="Billing's street name">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="order_id" type="BIGINT" remarks="Foreign key from order">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_address_billing_order"
+                                 baseColumnNames="order_id"
+                                 baseTableName="address_billing"
+                                 onDelete="CASCADE"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="order"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="address_billing"
+                                      constraintName="fk_address_billing_order"/>
+
+            <dropTable tableName="address_billing"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Table address_shipping -->
+    <changeSet author="abt" id="create-table-address_shipping">
+        <comment>Create address_shipping table</comment>
+
+        <createTable tableName="address_shipping" remarks="Address shipping of the order">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Unique table identifier">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="country" type="VARCHAR(50)" remarks="Shipping's country">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="city" type="VARCHAR(50)" remarks="Shipping's City">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="postal_code" type="VARCHAR(5)" remarks="Shipping's postal code">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="street_name" type="VARCHAR(255)" remarks="Shipping's street name">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="order_id" type="BIGINT" remarks="Foreign key from order">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+
+        <addForeignKeyConstraint constraintName="fk_address_shipping_order"
+                                 baseColumnNames="order_id"
+                                 baseTableName="address_shipping"
+                                 onDelete="CASCADE"
+                                 onUpdate="NO ACTION"
+                                 referencedColumnNames="id"
+                                 referencedTableName="order"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="address_shipping"
+                                      constraintName="fk_address_shipping_order"/>
+
+            <dropTable tableName="address_shipping"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="abt" id="tag_version_1.0">
+        <tagDatabase tag="version_1.0"/>
+    </changeSet>
 </databaseChangeLog>
